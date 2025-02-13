@@ -17,8 +17,8 @@ const checkWinner = (board) => {
     lines.push([...Array(SIZE).keys()].map((j) => i * SIZE + j)); // Linhas
     lines.push([...Array(SIZE).keys()].map((j) => j * SIZE + i)); // Colunas
   }
-  lines.push([...Array(SIZE).keys()].map((i) => i * (SIZE + 1))); // Diagonal \ 
-  lines.push([...Array(SIZE).keys()].map((i) => (i + 1) * (SIZE - 1))); // Diagonal /
+  lines.push([...Array(SIZE).keys()].map((i) => i * (SIZE + 1))); // Diagonal \
+  lines.push([3, 6, 9, 12]); // Correção na diagonal /
 
   for (let line of lines) {
     const winner = checkLine(line);
@@ -59,19 +59,24 @@ export default function CustomTicTacToe() {
 
     const newBoard = board.slice();
     newBoard[index] = currentPlayer;
-    setBoard(newBoard);
 
     const newWinner = checkWinner(newBoard);
-    if (newWinner) {
-      setWinner(newWinner);
-      if (newWinner !== "Empate") {
-        setScores((prev) => ({ ...prev, [newWinner]: prev[newWinner] + 1 }));
-      }
-    } else {
-      setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
+    let updatedScores = { ...scores };
+
+    if (newWinner && newWinner !== "Empate") {
+      updatedScores[newWinner] += 1;
     }
 
-    await updateGameState({ board: newBoard, currentPlayer, scores });
+    setBoard(newBoard);
+    setWinner(newWinner);
+    setScores(updatedScores);
+    setCurrentPlayer((prev) => (prev === "X" ? "O" : "X"));
+
+    await updateGameState({
+      board: newBoard,
+      currentPlayer: newWinner ? "X" : currentPlayer === "X" ? "O" : "X",
+      scores: updatedScores,
+    });
   };
 
   return (
@@ -104,6 +109,7 @@ export default function CustomTicTacToe() {
           const newGameState = { board: createBoard(), currentPlayer: "X", scores };
           setBoard(newGameState.board);
           setWinner(null);
+          setCurrentPlayer("X");
           await updateGameState(newGameState);
         }}
       >
