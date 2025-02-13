@@ -27,19 +27,17 @@ const checkWinner = (board) => {
   return board.includes(null) ? null : "Empate";
 };
 
-const fetchScore = async () => {
-  const response = await fetch("http://localhost:5173/score");
+const fetchGameState = async () => {
+  const response = await fetch("http://localhost:3000/game");
   return response.json();
 };
 
-const updateScore = async (player) => {
-  if (player !== "Empate") {
-    await fetch("http://localhost:5173/score", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ player }),
-    });
-  }
+const updateGameState = async (gameState) => {
+  await fetch("http://localhost:3000/game", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(gameState),
+  });
 };
 
 export default function CustomTicTacToe() {
@@ -49,7 +47,11 @@ export default function CustomTicTacToe() {
   const [scores, setScores] = useState({ X: 0, O: 0 });
 
   useEffect(() => {
-    fetchScore().then(setScores);
+    fetchGameState().then(({ board, currentPlayer, scores }) => {
+      setBoard(board);
+      setCurrentPlayer(currentPlayer);
+      setScores(scores);
+    });
   }, []);
 
   const handleClick = async (index) => {
@@ -62,13 +64,14 @@ export default function CustomTicTacToe() {
     const newWinner = checkWinner(newBoard);
     if (newWinner) {
       setWinner(newWinner);
-      await updateScore(newWinner);
       if (newWinner !== "Empate") {
         setScores((prev) => ({ ...prev, [newWinner]: prev[newWinner] + 1 }));
       }
     } else {
       setCurrentPlayer(currentPlayer === "X" ? "O" : "X");
     }
+
+    await updateGameState({ board: newBoard, currentPlayer, scores });
   };
 
   return (
@@ -97,9 +100,11 @@ export default function CustomTicTacToe() {
       </div>
       <button
         className="mt-4 px-4 py-2 bg-blue-500 rounded hover:bg-blue-600"
-        onClick={() => {
-          setBoard(createBoard());
+        onClick={async () => {
+          const newGameState = { board: createBoard(), currentPlayer: "X", scores };
+          setBoard(newGameState.board);
           setWinner(null);
+          await updateGameState(newGameState);
         }}
       >
         Reiniciar Jogo
