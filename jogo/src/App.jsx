@@ -27,13 +27,15 @@ const checkWinner = (board) => {
   return board.includes(null) ? null : "Empate";
 };
 
+const API_URL = "https://SEU-API-GATEWAY.amazonaws.com/dev/game";
+
 const fetchGameState = async () => {
-  const response = await fetch("http://localhost:3000/game");
+  const response = await fetch(API_URL);
   return response.json();
 };
 
 const updateGameState = async (gameState) => {
-  await fetch("http://localhost:3000/game", {
+  await fetch(API_URL, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
     body: JSON.stringify(gameState),
