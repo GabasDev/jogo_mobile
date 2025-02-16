@@ -30,16 +30,40 @@ const checkWinner = (board) => {
 const API_URL = "https://idddyilmpi.execute-api.us-east-1.amazonaws.com/default/JogoLamdba";
 
 const fetchGameState = async () => {
-  const response = await fetch(API_URL);
-  return response.json();
+  try {
+    const response = await fetch(API_URL, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*", // Permite requisições de qualquer origem
+      },
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao buscar o estado do jogo");
+    }
+    return response.json();
+  } catch (error) {
+    console.error("Erro na requisição GET:", error);
+    return { board: createBoard(), currentPlayer: "X", scores: { X: 0, O: 0 } };
+  }
 };
 
 const updateGameState = async (gameState) => {
-  await fetch(API_URL, {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(gameState),
-  });
+  try {
+    const response = await fetch(API_URL, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Origin": "*", // Permite requisições de qualquer origem
+      },
+      body: JSON.stringify(gameState),
+    });
+    if (!response.ok) {
+      throw new Error("Erro ao atualizar o estado do jogo");
+    }
+  } catch (error) {
+    console.error("Erro na requisição POST:", error);
+  }
 };
 
 export default function CustomTicTacToe() {
