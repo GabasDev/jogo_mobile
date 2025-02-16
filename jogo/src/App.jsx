@@ -27,7 +27,7 @@ const checkWinner = (board) => {
   return board.includes(null) ? null : "Empate";
 };
 
-const API_URL = "https://SEU-API-GATEWAY.amazonaws.com/dev/game";
+const API_URL = "https://idddyilmpi.execute-api.us-east-1.amazonaws.com/default/JogoLamdba";
 
 const fetchGameState = async () => {
   const response = await fetch(API_URL);
